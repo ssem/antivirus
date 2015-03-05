@@ -1,0 +1,3 @@
+#!/bin/bash
+clamscan -r -v -i --copy=clamtrap --log=clam.log --exclude="metasploit-framework" /
+rm /tmp/clamav* 2>/dev/null

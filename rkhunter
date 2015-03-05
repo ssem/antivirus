@@ -1,0 +1,3 @@
+#!/bin/bash
+
+sudo rkhunter --check --logfile rkhunter.log --noappend-log --rwo --sk --summary

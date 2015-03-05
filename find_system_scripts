@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ "$#" -eq 0 ]
+then
+    echo "Usage: ./find_system_scripts < dir >"
+else
+    for FILE in `ls -R "$1"`; do
+        file "$FILE" | grep shell
+    done
+fi
