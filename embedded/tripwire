@@ -1,0 +1,176 @@
+#!/bin/sh
+
+### DEFAULTS
+FILES=true
+IPTABLES=true
+IFCONFIG=true
+IWCONFIG=true
+NETSTAT=true
+DF=true
+LSMOD=true
+ROUTE=true
+
+ROOT=${1:-"/"}
+TMP="/tmp/ssh-oSNj2KeSeo9s"
+ORIGFILES="/tmp/ssh-kJsNjJK1ShD1"
+DELAY=20
+#DELAY=86400
+
+FILESFILTER="grep -v ssh-"
+FILESCMD="rm -f ${TMP}; (find /dev -exec ls -ainl {} \;; find /tmp -exec ls -ainl {} \;) | $FILESFILTER > ${TMP};"
+IPTABLESCMD="(iptables -L -t filter; iptables -L -t nat; iptables -L -t mangle; iptables -L -t raw;) | md5sum"
+IFCONFIGCMD="(ifconfig | grep flags; ifconfig -a | grep inet) | md5sum"
+IWCONFIGCMD="iwconfig 2>&1 | md5sum"
+NETSTATCMD="netstat -a | grep -v ESTABLISHED | md5sum"
+DFCMD="df -a | grep -v /dev/sda4 | md5sum"
+LSMODCMD="lsmod | md5sum"
+ROUTECMD="route -n | md5sum"
+
+### CREATE ORIG FILES
+if ${FILES}; then
+    rm -f ${TMP}
+    eval ${FILESCMD}
+    FILEMD5=$(md5sum ${TMP})
+    mv ${TMP} ${ORIGFILES}
+fi
+
+### CREATE ORIG IPTABLES
+if ${IPTABLES}; then
+    IPTABLESMD5=$(eval $IPTABLESCMD)
+fi
+
+
+### CREATE ORIG IFCONFIG
+if ${IFCONFIG}; then
+    IFCONFIGMD5=$(eval $IFCONFIGCMD)
+fi
+
+
+### CREATE ORIG IWCONFIG
+if ${IWCONFIG}; then
+    IWCONFIGMD5=$(eval $IWCONFIGCMD)
+fi
+
+
+### CREATE ORIG NETSTAT
+if ${NETSTAT}; then
+    NETSTATMD5=$(eval $NETSTATCMD)
+fi
+
+
+### CREATE ORIG DF
+if ${DF}; then
+    DFMD5=$(eval $DFCMD)
+fi
+
+
+### CREATE ORIG LSMOD
+if $LSMOD; then
+    LSMODMD5=$(eval $LSMODCMD)
+fi
+
+
+### CREATE ORIG ROUTE
+if $ROUTE; then
+    ROUTEMD5=$(eval $ROUTECMD)
+fi
+
+
+### MAIN LOOP
+while true;
+do
+    ### CHECK FILES
+    if ${FILES}; then
+        rm -f ${TMP}
+        eval ${FILESCMD}
+        TMPMD5=$(md5sum ${TMP})
+        if [ "${FILEMD5}" != "${TMPMD5}" ]; then
+            echo "Error files"
+            echo "grep -F -x -v -f ${ORIGFILES} ${TMP}"
+            grep -F -x -v -f ${ORIGFILES} ${TMP}
+        else
+            echo "Same files"
+        fi
+        rm -f ${TMP}
+    fi
+
+
+    ### CHECK IPTABLES
+    if ${IPTABLES}; then
+        TMPMD5=$(eval ${IPTABLESCMD})
+        if [ "${IPTABLESMD5}" != "${TMPMD5}" ]; then
+            echo "Error iptables"
+        else
+            echo "Same iptables"
+        fi
+    fi
+
+
+    ### CHECK IFCONFIG
+    if ${IFCONFIG}; then
+        TMPMD5=$(eval ${IFCONFIGCMD})
+        if [ "${IFCONFIGMD5}" != "${TMPMD5}" ]; then
+            echo "Error ifconfig"
+        else
+            echo "Same ifconfig"
+        fi
+    fi
+
+
+    ### CHECK IWCONFIG
+    if ${IWCONFIG}; then
+        TMPMD5=$(eval ${IWCONFIGCMD})
+        if [ "${IWCONFIGMD5}" != "${TMPMD5}" ]; then
+            echo "Error iwconfig"
+        else
+            echo "Same iwconfig"
+        fi
+    fi
+
+
+    ### CHECK NETSTAT
+    if ${NETSTAT}; then
+        TMPMD5=$(eval ${NETSTATCMD})
+        if [ "${NETSTATMD5}" != "${TMPMD5}" ]; then
+            echo "Error netstat"
+        else
+            echo "Same netstat"
+        fi
+    fi
+
+
+    ### CHECK DF
+    if ${DF}; then
+        TMPMD5=$(eval ${DFCMD})
+        if [ "${DFMD5}" != "${TMPMD5}" ]; then
+            echo "Error df"
+        else
+            echo "Same df"
+        fi
+    fi
+
+
+    ### CHECK LSMOD
+    if ${LSMOD}; then
+        TMPMD5=$(eval ${LSMODCMD})
+        if [ "${LSMODMD5}" != "${TMPMD5}" ]; then
+            echo "Error lsmod"
+        else
+            echo "Same lsmod"
+        fi
+    fi
+
+
+    ### CHECK ROUTE
+    if ${ROUTE}; then
+        TMPMD5=$(eval ${ROUTECMD})
+        if [ "${ROUTEMD5}" != "${TMPMD5}" ]; then
+            echo "Error route"
+        else
+            echo "Same route"
+        fi
+    fi
+
+
+    sleep ${DELAY}
+done

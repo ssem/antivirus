@@ -1,3 +1,4 @@
 #!/bin/bash
 FILE=`ls -t /var/lib/tripwire/report/ | head -1`
 sudo tripwire --update -r "/var/lib/tripwire/report/$FILE"
+sudo tripwire --check

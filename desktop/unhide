@@ -1,0 +1,6 @@
+#!/bin/bash
+sudo unhide brute
+sudo unhide procall
+sudo unhide procfs
+sudo unhide reverse
+sudo unhide sys

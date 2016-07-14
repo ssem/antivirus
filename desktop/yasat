@@ -1,0 +1,2 @@
+sudo yasat --check-update
+sudo yasat --desktop --full-scan
